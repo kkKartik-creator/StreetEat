@@ -1,0 +1,56 @@
+
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen">
+    <div class="bg-gradient-to-r from-orange-500 to-red-600 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">Welcome to StreetEats</h1>
+                <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+                    Empowering street food vendors with market intelligence
+                </p>
+                <a href="/dashboard" class="inline-flex items-center px-8 py-4 bg-white text-orange-600 font-semibold rounded-lg hover:bg-gray-100 transition duration-300">
+                    <i data-lucide="bar-chart-3" class="h-5 w-5 mr-2"></i>
+                    View Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Features</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center p-6 bg-white rounded-lg shadow-sm">
+                    <div class="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="trending-up" class="h-8 w-8 text-orange-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Price Trends</h3>
+                    <p class="text-gray-600">Track raw material prices across markets</p>
+                </div>
+                
+                <div class="text-center p-6 bg-white rounded-lg shadow-sm">
+                    <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="check-circle" class="h-8 w-8 text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Quality Monitoring</h3>
+                    <p class="text-gray-600">Monitor quality grades and availability</p>
+                </div>
+                
+                <div class="text-center p-6 bg-white rounded-lg shadow-sm">
+                    <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="alert-triangle" class="h-8 w-8 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Market Alerts</h3>
+                    <p class="text-gray-600">Get notified about price changes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

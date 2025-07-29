@@ -1,0 +1,57 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreetEats - Market Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        /* Style for the active navigation link */
+        .nav-link-active {
+            color: #F97316; /* orange-600 */
+            border-bottom: 2px solid #F97316;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="flex items-center space-x-2">
+                        <i data-lucide="package" class="h-8 w-8 text-orange-500"></i>
+                        <h1 class="text-2xl font-bold text-gray-900">StreetEats</h1>
+                    </a>
+                </div>
+                <div class="hidden sm:flex items-center space-x-6">
+                    <!-- Navigation Links -->
+                    <a href="/dashboard" class="text-gray-600 hover:text-orange-600 font-medium py-5 px-2 {% if request.path == '/dashboard' %}nav-link-active{% endif %}">
+                        Dashboard
+                    </a>
+                    <a href='/vendor_performance' class="text-gray-600 hover:text-orange-600 font-medium py-5 px-2 {% if request.path == '/vendor-ratings' %}nav-link-active{% endif %}">
+                        Vendor Performance
+                    </a>
+                    <a href='/supplier_performance' class="text-gray-600 hover:text-orange-600 font-medium py-5 px-2 {% if request.path == '/supplier-ratings' %}nav-link-active{% endif %}">
+                        Supplier Ratings
+                    </a>
+                </div>
+                <div class="flex items-center">
+                    <!-- Mobile menu button can be added here if needed -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

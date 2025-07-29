@@ -1,0 +1,336 @@
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="filter" class="h-4 w-4 text-gray-500"></i>
+                <span class="text-sm font-medium text-gray-700">Filters:</span>
+            </div>
+            
+            <select id="regionSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+                {% for region in regions %}
+                <option value="{{ region.region_id }}">{{ region.region_name }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="timeRangeSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 3 Months</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingIndicator" class="text-center py-8 hidden">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+        <p class="text-gray-600">Loading...</p>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Avg Price Index</p>
+                    <p id="avgPriceIndex" class="text-2xl font-bold text-gray-900">₹142</p>
+                    <p id="avgPriceIndexPercent" class="text-sm text-green-600 flex items-center mt-1">
+                        <i data-lucide="trending-up" class="h-4 w-4 mr-1"></i>
+                        +12% from last week
+                    </p>
+                </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="indian-rupee" class="h-6 w-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Quality Score</p>
+                    <p id="qualityScore" class="text-2xl font-bold text-gray-900">82%</p>
+                    <p class="text-sm text-green-600 flex items-center mt-1">
+                        <i data-lucide="trending-up" class="h-4 w-4 mr-1"></i>
+                        +6% improvement
+                    </p>
+                </div>
+                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Stock Availability</p>
+                    <p id="availability" class="text-2xl font-bold text-gray-900">78%</p>
+                    <p class="text-sm text-red-600 flex items-center mt-1">
+                        <i data-lucide="trending-down" class="h-4 w-4 mr-1"></i>
+                        -3% this week
+                    </p>
+                </div>
+                <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="package" class="h-6 w-6 text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Market Alerts</p>
+                    <p id="alertCount" class="text-2xl font-bold text-gray-900">3</p>
+                    <p class="text-sm text-orange-600 flex items-center mt-1">
+                        <i data-lucide="alert-triangle" class="h-4 w-4 mr-1"></i>
+                        Price spikes detected
+                    </p>
+                </div>
+                <div class="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="alert-triangle" class="h-6 w-6 text-red-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Price Trends (₹/kg)</h3>
+            <canvas id="priceChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Quality Distribution</h3>
+            <canvas id="qualityChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Items -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Market Items</h3>
+        <div id="topItemsList" class="space-y-4">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+  <h3 class="text-lg font-semibold text-gray-900 mb-4">Market Alerts & Insights</h3>
+  <div class="space-y-4">
+    <div class="flex items-start space-x-3 p-4 bg-red-50 border-l-4 border-red-400 rounded">
+      <i data-lucide="alert-triangle" class="h-5 w-5 text-red-600 mt-0.5"></i>
+      <div>
+        <p class="font-medium text-red-800">Price Spike Alert</p>
+        <p class="text-red-700 text-sm">Onion prices have increased by 15% in the last week due to supply chain disruptions.</p>
+      </div>
+    </div>
+
+    <div class="flex items-start space-x-3 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+      <i data-lucide="alert-triangle" class="h-5 w-5 text-yellow-600 mt-0.5"></i>
+      <div>
+        <p class="font-medium text-yellow-800">Quality Concern</p>
+        <p class="text-yellow-700 text-sm">Grade A tomato availability has dropped to 45% in the Mumbai market.</p>
+      </div>
+    </div>
+
+    <div class="flex items-start space-x-3 p-4 bg-green-50 border-l-4 border-green-400 rounded">
+      <i data-lucide="check-circle" class="h-5 w-5 text-green-600 mt-0.5"></i>
+      <div>
+        <p class="font-medium text-green-800">Good News</p>
+        <p class="text-green-700 text-sm">Rice and wheat flour prices have stabilized — good time to stock up.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let priceChart, qualityChart;
+
+async function loadDashboardData() {
+    const regionId = document.getElementById('regionSelect').value;
+    const timeRange = document.getElementById('timeRangeSelect').value;
+    
+    document.getElementById('loadingIndicator').classList.remove('hidden');
+    
+    try {
+        const response = await fetch(`/api/dashboard-data?region_id=${regionId}&days=${timeRange}`);
+        const data = await response.json();
+        
+        updateMetrics(data.summary);
+        updatePriceChart(data.price_trends);
+        updateQualityChart(data.quality_distribution);
+        updateTopItems(data.top_items);
+        updateAlerts(data.alerts);
+        
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    } finally {
+        document.getElementById('loadingIndicator').classList.add('hidden');
+    }
+}
+
+function updateMetrics(summary) {
+    document.getElementById('avgPriceIndex').textContent = `₹${summary.avg_price_index}`;
+    document.getElementById('avgPriceIndexPercent').textContent = `${summary.avg_price_index_percent} from last week`;
+    document.getElementById('qualityScore').textContent = `${summary.quality_score}%`;
+    document.getElementById('availability').textContent = `${summary.availability}%`;   
+    document.getElementById('alertCount').textContent = summary.alert_count;
+}
+
+function updatePriceChart(price_trends) {
+    const ctx = document.getElementById('priceChart').getContext('2d');
+
+    if (priceChart) {
+        priceChart.destroy();
+    }
+
+    const itemNames = Object.keys(price_trends[0]).filter(key => key !== 'week');
+
+    const datasets = itemNames.map((itemName, index) => {
+        const colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6'];
+        const bgColors = ['rgba(239, 68, 68, 0.1)', 'rgba(245, 158, 11, 0.1)', 'rgba(16, 185, 129, 0.1)', 'rgba(59, 130, 246, 0.1)'];
+
+        return {
+            label: itemName,
+            data: price_trends.map(entry => entry[itemName]),
+            borderColor: colors[index % colors.length],
+            backgroundColor: bgColors[index % bgColors.length],
+            tension: 0.4
+        };
+    });
+
+    priceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: price_trends.map(entry => entry.week),
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Price (₹/kg)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+function updateQualityChart(data) {
+    const ctx = document.getElementById('qualityChart').getContext('2d');
+    
+    if (qualityChart) {
+        qualityChart.destroy();
+    }
+    
+    qualityChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(d => d.week),
+            datasets: [
+                {
+                    label: 'Grade A',
+                    data: data.map(d => d.grade_a),
+                    backgroundColor: '#10B981'
+                },
+                {
+                    label: 'Grade B',
+                    data: data.map(d => d.grade_b),
+                    backgroundColor: '#F59E0B'
+                },
+                {
+                    label: 'Grade C',
+                    data: data.map(d => d.grade_c),
+                    backgroundColor: '#EF4444'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    stacked: true
+                },
+                y: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Percentage'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateTopItems(items) {
+    const container = document.getElementById('topItemsList');
+    container.innerHTML = items.map(item => `
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="package" class="h-5 w-5 text-orange-600"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">${item.name}</h4>
+                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                        <span>Quality: ${item.quality}%</span>
+                        <span>Stock: ${item.availability}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-lg font-semibold text-gray-900">₹${item.price}</div>
+                <div class="text-sm flex items-center ${item.trend === 'up' ? 'text-red-600' : 'text-green-600'}">
+                    <i data-lucide="trending-${item.trend}" class="h-4 w-4 mr-1"></i>
+                    ${item.change}
+                </div>
+            </div>
+        </div>
+    `).join('');
+    lucide.createIcons();
+}
+
+function updateAlerts(alerts) {
+    const container = document.getElementById('alertsList');
+    const severityClasses = {
+        'high': 'bg-red-50 border-red-400 text-red-800',
+        'medium': 'bg-yellow-50 border-yellow-400 text-yellow-800',
+        'low': 'bg-green-50 border-green-400 text-green-800'
+    };
+    
+    container.innerHTML = alerts.map(alert => `
+        <div class="flex items-start space-x-3 p-4 border-l-4 rounded ${severityClasses[alert.severity]}">
+            <i data-lucide="alert-triangle" class="h-5 w-5 mt-0.5"></i>
+            <div>
+                <p class="font-medium">${alert.title}</p>
+                <p class="text-sm">${alert.message}</p>
+            </div>
+        </div>
+    `).join('');
+    lucide.createIcons();
+}
+
+// Event listeners
+document.getElementById('regionSelect').addEventListener('change', loadDashboardData);
+document.getElementById('timeRangeSelect').addEventListener('change', loadDashboardData);
+
+// Load initial data
+document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
+{% endblock %}

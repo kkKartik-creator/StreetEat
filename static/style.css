@@ -1,0 +1,35 @@
+/* Custom styles for StreetEats Dashboard */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.metric-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+}
+
+.loading-spinner {
+    border-top-color: #f97316;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Alert animations */
+.alert-enter {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.alert-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 300ms, transform 300ms;
+}
