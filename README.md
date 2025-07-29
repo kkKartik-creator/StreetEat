@@ -61,7 +61,7 @@ Pip
 Installation
 Clone the repo
 
-git clone https://github.com/your_username_/Streeteats.git
+git clone https://github.com/your_username_/Streeteats.git](https://github.com/kkKartik-creator/StreetEat
 
 Install Python packages
 
